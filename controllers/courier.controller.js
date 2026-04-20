@@ -49,8 +49,19 @@ async function accept(req, res) {
     req.flash("error", "Esta entrega já foi aceite por outro courier.");
     return res.redirect("/courier/available");
   }
-  await onCourierAcceptDelivery(delivery.order, courierId);
-  req.flash("success", "Entrega aceite.");
+   try {
+    await onCourierAcceptDelivery(delivery.order, courierId);
+    req.flash("success", "Entrega aceite.");
+  } catch (err) {
+    // Se a transição de estado falhar, reverter delivery para available
+    // para que outro estafeta possa aceitar 
+    await Delivery.findByIdAndUpdate(delivery._id, {
+      courier: null,
+      status: "available",
+      acceptedAt: null
+    });
+    req.flash("error", `Erro ao aceitar entrega: ${err.message}`);
+  }
   res.redirect("/courier/dashboard");
 }
 
