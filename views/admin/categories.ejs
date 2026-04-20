@@ -1,0 +1,21 @@
+<p class="mb-2"><a href="/admin/dashboard">← Voltar ao dashboard</a></p>
+<h2>Categorias</h2>
+<form method="post" action="/admin/categories">
+  <input name="name" placeholder="Nome" required>
+  <input name="description" placeholder="Descrição">
+  <button>Criar</button>
+</form>
+<ul>
+  <% categories.forEach(c => { %>
+    <li>
+      <%= c.name %> - <%= c.isActive ? 'ativa' : 'inativa' %>
+      <form method="post" action="/admin/categories/<%= c._id %>?_method=PUT" style="display:inline">
+        <input name="name" value="<%= c.name %>">
+        <button>Guardar</button>
+      </form>
+      <form method="post" action="/admin/categories/<%= c._id %>?_method=DELETE" style="display:inline">
+        <button>Desativar</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>

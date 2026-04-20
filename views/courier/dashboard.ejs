@@ -1,0 +1,26 @@
+<h2>Dashboard Estafeta</h2>
+<p>Total entregas: <%= totalDeliveries %></p>
+<h4>Supermercados com mais entregas</h4>
+<% if (topSupermarkets?.length) { %>
+  <ul>
+    <% topSupermarkets.forEach(row => { %>
+      <li><%= row.supermarketName || "Supermercado removido" %>: <%= row.total %></li>
+    <% }) %>
+  </ul>
+<% } else { %>
+  <p>Sem entregas concluídas ainda.</p>
+<% } %>
+<% if (activeDelivery) { %>
+  <p>Tens uma entrega ativa: <strong><%= activeDelivery.status %></strong></p>
+  <% if (activeDelivery.status === 'accepted') { %>
+    <form method="post" action="/courier/deliveries/<%= activeDelivery._id %>/picked-up"><button>Marcar picked_up</button></form>
+  <% } %>
+  <% if (activeDelivery.status === 'picked_up') { %>
+    <form method="post" action="/courier/deliveries/<%= activeDelivery._id %>/delivered"><button>Marcar delivered</button></form>
+  <% } %>
+  <form method="post" action="/courier/deliveries/<%= activeDelivery._id %>/cancel">
+    <input name="reason" placeholder="Motivo cancelamento">
+    <button>Cancelar entrega</button>
+  </form>
+<% } %>
+<a href="/courier/available">Ver disponíveis</a>

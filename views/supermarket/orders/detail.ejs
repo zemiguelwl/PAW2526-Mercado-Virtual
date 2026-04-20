@@ -1,0 +1,12 @@
+<p class="mb-2"><a href="/supermarket/orders">← Voltar às encomendas</a></p>
+<h2>Detalhe da Encomenda</h2>
+<p>Estado: <strong><%= order.status %></strong></p>
+<p>Cliente: <%= order.client?.name %></p>
+<ul><% order.items.forEach(i => { %><li><%= i.productName %> x <%= i.quantity %> - €<%= i.productPrice %></li><% }) %></ul>
+<form method="post" action="/supermarket/orders/<%= order._id %>/confirm"><button>Confirmar</button></form>
+<form method="post" action="/supermarket/orders/<%= order._id %>/start-preparing"><button>Iniciar Preparação</button></form>
+<form method="post" action="/supermarket/orders/<%= order._id %>/ready"><button>Marcar Ready</button></form>
+<form method="post" action="/supermarket/orders/<%= order._id %>/delivered"><button>Marcar Delivered</button></form>
+<% if (order.status === 'delivered' && !order.reviewSubmitted) { %>
+  <a href="/supermarket/orders/<%= order._id %>/review">Registar avaliação do cliente</a>
+<% } %>

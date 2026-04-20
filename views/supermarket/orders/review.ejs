@@ -1,0 +1,14 @@
+<p class="mb-2"><a href="/supermarket/orders/<%= order._id %>">← Voltar ao detalhe da encomenda</a></p>
+<h2>Registar Avaliação do Cliente</h2>
+<form method="post" action="/supermarket/orders/<%= order._id %>/review">
+  <label>Rating supermercado (1-5)</label>
+  <input name="supermarketRating" type="number" min="1" max="5" required>
+  <textarea name="supermarketComment" placeholder="Comentário"></textarea>
+
+  <% if (order.deliveryMethod === 'courier' && delivery && delivery.courier) { %>
+    <label>Rating courier (1-5)</label>
+    <input name="courierRating" type="number" min="1" max="5">
+    <textarea name="courierComment" placeholder="Comentário courier"></textarea>
+  <% } %>
+  <button>Submeter avaliação</button>
+</form>

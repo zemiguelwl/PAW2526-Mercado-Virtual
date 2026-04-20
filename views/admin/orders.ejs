@@ -1,0 +1,10 @@
+<p class="mb-2"><a href="/admin/dashboard">← Voltar ao dashboard</a></p>
+<h2>Encomendas</h2>
+<% orders.forEach(o => { %>
+  <div>#<%= o._id.toString().slice(-6) %> - <%= o.status %> - €<%= o.total %>
+    <a href="/admin/orders/<%= o._id %>">Detalhe</a>
+    <% if (o.status !== 'cancelled' && o.status !== 'delivered') { %>
+      <form method="post" action="/admin/orders/<%= o._id %>/cancel" style="display:inline"><button>Cancelar</button></form>
+    <% } %>
+  </div>
+<% }) %>

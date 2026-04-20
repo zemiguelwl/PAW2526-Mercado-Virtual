@@ -1,0 +1,13 @@
+<p class="mb-2"><a href="/admin/dashboard">← Voltar ao dashboard</a></p>
+<h2>Supermercados</h2>
+<%- include('../partials/flash') %>
+<% supermarkets.forEach(sm => { %>
+  <div>
+    <strong><%= sm.name %></strong> - <%= sm.status %>
+    <form method="post" action="/admin/supermarkets/<%= sm._id %>/approve" style="display:inline"><button>Aprovar</button></form>
+    <form method="post" action="/admin/supermarkets/<%= sm._id %>/reject" style="display:inline">
+      <input name="reason" placeholder="Motivo">
+      <button>Rejeitar</button>
+    </form>
+  </div>
+<% }) %>

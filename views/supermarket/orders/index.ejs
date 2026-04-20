@@ -1,0 +1,8 @@
+<p class="mb-2"><a href="/supermarket/dashboard">← Voltar ao dashboard</a></p>
+<h2>Encomendas</h2>
+<% orders.forEach(o => { %>
+  <div>
+    #<%= o._id.toString().slice(-6).toUpperCase() %> | <%= o.status %> | €<%= o.total %>
+    <a href="/supermarket/orders/<%= o._id %>">Detalhe</a>
+  </div>
+<% }) %>

@@ -1,0 +1,4 @@
+<p class="mb-2"><a href="/courier/dashboard">← Voltar ao dashboard</a></p>
+<h2>Avaliações do Estafeta</h2>
+<p>Rating médio: <%= averageRating %></p>
+<ul><% reviews.forEach(r => { %><li><%= r.rating %>/5 - <%= r.comment || 'Sem comentário' %></li><% }) %></ul>

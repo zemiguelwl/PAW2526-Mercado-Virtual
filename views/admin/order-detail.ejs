@@ -1,0 +1,21 @@
+<p class="mb-2"><a href="/admin/orders">← Voltar às encomendas</a></p>
+<h2>Detalhe da Encomenda (Admin)</h2>
+<p>Ref: #<%= order._id.toString().slice(-6).toUpperCase() %></p>
+<p>Supermercado: <%= order.supermarket?.name || 'N/A' %></p>
+<p>Estado: <strong><%= order.status %></strong></p>
+<p>Cliente: <%= order.client?.name %> - <%= order.client?.email || 'sem email' %></p>
+<p>Total: €<%= Number(order.total).toFixed(2) %></p>
+
+<h4>Itens</h4>
+<ul>
+  <% order.items.forEach(i => { %>
+    <li><%= i.productName %> x <%= i.quantity %> @ €<%= Number(i.productPrice).toFixed(2) %></li>
+  <% }) %>
+</ul>
+
+<h4>Histórico de estados</h4>
+<ul>
+  <% (order.statusHistory || []).forEach(h => { %>
+    <li><%= h.status %> - <%= new Date(h.changedAt).toLocaleString('pt-PT') %> <%= h.reason ? `(${h.reason})` : '' %></li>
+  <% }) %>
+</ul>

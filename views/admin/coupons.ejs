@@ -1,0 +1,32 @@
+<p class="mb-2"><a href="/admin/dashboard">← Voltar ao dashboard</a></p>
+<h2>Cupões Globais</h2>
+<%- include('../partials/flash') %>
+<p>
+  <a href="/admin/coupons/create">Criar novo cupão</a>
+</p>
+<ul>
+  <% coupons.forEach(c => { %>
+    <li style="margin-bottom:18px;">
+      <strong><%= c.code %></strong> | <%= c.description || 'Sem descrição' %><br>
+      <small>
+        Estado: <%= c.isActive ? 'ativo' : 'inativo' %> |
+        Tipo: <%= c.discountType === 'percentage' ? 'Percentagem' : c.discountType === 'fixed_amount' ? 'Valor fixo' : 'Envio grátis' %> |
+        Valor: <%= c.discountType === 'fixed_shipping' ? '€0' : c.discountType === 'percentage' ? `${c.discountValue}%` : `€${c.discountValue.toFixed(2)}` %> |
+        Usos: <%= c.currentUses %>/<%= c.maxUses == null ? '∞' : c.maxUses %> |
+        Enviado a <%= c.sentCount %> utilizador(es) |
+        Válido: <%= new Date(c.validFrom).toLocaleDateString('pt-PT') %> a <%= new Date(c.validUntil).toLocaleDateString('pt-PT') %>
+      </small>
+      <div style="margin-top:8px">
+        <form method="post" action="/admin/coupons/<%= c._id %>/send" style="display:inline;margin-right:8px">
+          <button type="submit">Enviar cupão</button>
+        </form>
+        <form method="post" action="/admin/coupons/<%= c._id %>/toggle" style="display:inline;margin-right:8px">
+          <button type="submit"><%= c.isActive ? 'Desativar' : 'Ativar' %></button>
+        </form>
+        <form method="post" action="/admin/coupons/<%= c._id %>?_method=DELETE" style="display:inline">
+          <button type="submit">Remover</button>
+        </form>
+      </div>
+    </li>
+  <% }) %>
+</ul>

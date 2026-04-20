@@ -1,0 +1,17 @@
+<p class="mb-2"><a href="/admin/coupons">← Voltar aos cupões</a></p>
+<h2>Criar Cupão Global</h2>
+<form method="post" action="/admin/coupons">
+  <input name="code" placeholder="Código" required>
+  <input name="description" placeholder="Descrição">
+  <select name="discountType">
+    <option value="percentage">Percentagem no subtotal</option>
+    <option value="fixed_amount">Valor fixo</option>
+    <option value="fixed_shipping">Entrega gratuita</option>
+  </select>
+  <input name="discountValue" type="number" step="0.01" required title="Para entrega grátis: 0">
+  <input name="minOrderValue" type="number" step="0.01" value="0">
+  <input name="maxUses" type="number" value="0" title="0 = ilimitado">
+  <input name="validFrom" type="date" required>
+  <input name="validUntil" type="date" required>
+  <button>Criar</button>
+</form>

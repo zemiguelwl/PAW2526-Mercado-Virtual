@@ -1,0 +1,19 @@
+<p class="mb-2"><a href="/supermarket/products">← Voltar aos produtos</a></p>
+<h2>Editar Produto</h2>
+<form method="post" action="/supermarket/products/<%= product._id %>?_method=PUT" enctype="multipart/form-data">
+  <input name="name" value="<%= product.name %>" required>
+  <input name="price" type="number" step="0.01" value="<%= product.price %>" required>
+  <input name="stock" type="number" value="<%= product.stock %>" required>
+  <select name="category" required>
+    <% categories.forEach(c => { %>
+      <option value="<%= c._id %>" <%= String(product.category) === String(c._id) ? 'selected' : '' %>><%= c.name %></option>
+    <% }) %>
+  </select>
+  <textarea name="description"><%= product.description || '' %></textarea>
+  <input type="file" name="image" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp">
+  <small>Formatos: jpg, jpeg, png, webp (max 5MB)</small>
+  <% if (product.image) { %>
+    <div><img src="<%= product.image %>" alt="Imagem atual" style="max-width:180px;height:auto;margin-top:8px"></div>
+  <% } %>
+  <button>Guardar</button>
+</form>

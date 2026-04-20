@@ -1,0 +1,9 @@
+<p class="mb-2"><a href="/courier/dashboard">← Voltar ao dashboard</a></p>
+<h2>Histórico de Entregas</h2>
+<% deliveries.forEach(d => { %>
+  <div>
+    <%= d._id %> - <%= d.status %>
+    <% if (d.status === 'accepted') { %><form method="post" action="/courier/deliveries/<%= d._id %>/picked-up"><button>Picked up</button></form><% } %>
+    <% if (d.status === 'picked_up') { %><form method="post" action="/courier/deliveries/<%= d._id %>/delivered"><button>Delivered</button></form><% } %>
+  </div>
+<% }) %>

@@ -1,0 +1,11 @@
+<p class="mb-2"><a href="/admin/dashboard">← Voltar ao dashboard</a></p>
+<h2>Utilizadores</h2>
+<% users.forEach(u => { %>
+  <div><%= u.name %> (<%= u.role %>) - <%= u.isActive ? 'ativo' : 'inativo' %>
+    <% if (u.role !== 'admin') { %>
+      <form method="post" action="/admin/users/<%= u._id %>/<%= u.isActive ? 'deactivate' : 'activate' %>" style="display:inline">
+        <button><%= u.isActive ? 'Desativar' : 'Ativar' %></button>
+      </form>
+    <% } %>
+  </div>
+<% }) %>

@@ -1,0 +1,26 @@
+<p class="mb-2"><a href="/supermarket/dashboard">← Voltar ao dashboard</a></p>
+<h2>Perfil do Supermercado</h2>
+<form method="post" action="/supermarket/profile">
+  <input name="name" value="<%= supermarket?.name || '' %>" placeholder="Nome">
+  <input name="location" value="<%= supermarket?.location || '' %>" placeholder="Morada">
+  <input name="phone" value="<%= supermarket?.phone || '' %>" placeholder="Telefone">
+  <textarea name="description" placeholder="Descrição"><%= supermarket?.description || '' %></textarea>
+  <label><input type="checkbox" name="isOpen" <%= supermarket?.isOpen ? 'checked' : '' %>> Aberto</label>
+  <h4>Horário</h4>
+  <input name="monday" placeholder="Seg" value="<%= supermarket?.schedule?.monday || '' %>">
+  <input name="tuesday" placeholder="Ter" value="<%= supermarket?.schedule?.tuesday || '' %>">
+  <input name="wednesday" placeholder="Qua" value="<%= supermarket?.schedule?.wednesday || '' %>">
+  <input name="thursday" placeholder="Qui" value="<%= supermarket?.schedule?.thursday || '' %>">
+  <input name="friday" placeholder="Sex" value="<%= supermarket?.schedule?.friday || '' %>">
+  <input name="saturday" placeholder="Sáb" value="<%= supermarket?.schedule?.saturday || '' %>">
+  <input name="sunday" placeholder="Dom" value="<%= supermarket?.schedule?.sunday || '' %>">
+  <h4>Métodos de entrega</h4>
+  <label><input type="checkbox" name="pickupActive" <%= supermarket?.deliveryMethods?.find(m => m.type === 'pickup' && m.active) ? 'checked' : '' %>> Pickup ativo</label>
+  <input name="pickupCost" type="number" step="0.01" value="<%= (supermarket?.deliveryMethods?.find(m => m.type === 'pickup')?.cost) || 0 %>">
+  <label><input type="checkbox" name="courierActive" <%= supermarket?.deliveryMethods?.find(m => m.type === 'courier' && m.active) ? 'checked' : '' %>> Courier ativo</label>
+  <input name="courierCost" type="number" step="0.01" value="<%= (supermarket?.deliveryMethods?.find(m => m.type === 'courier')?.cost) || 0 %>">
+  <button>Guardar</button>
+</form>
+<form method="post" action="/supermarket/profile/toggle-open">
+  <button><%= supermarket?.isOpen ? 'Fechar loja' : 'Abrir loja' %></button>
+</form>

@@ -1,0 +1,35 @@
+<p class="mb-2"><a href="/supermarket/dashboard">← Voltar ao dashboard</a></p>
+<h2>Cupões do Supermercado</h2>
+<%- include('../../partials/flash') %>
+<a href="/supermarket/coupons/create">Criar novo cupão</a>
+<form method="post" action="/supermarket/coupons">
+  <input name="code" placeholder="Código" required>
+  <input name="description" placeholder="Descrição">
+  <select name="discountType">
+    <option value="percentage">Percentagem no subtotal</option>
+    <option value="fixed_shipping">Entrega gratuita</option>
+  </select>
+  <input name="discountValue" type="number" step="0.01" required title="Para entrega grátis: 0">
+  <input name="minOrderValue" type="number" step="0.01" value="0">
+  <input name="maxUses" type="number" value="0" title="0 = ilimitado">
+  <input name="validFrom" type="date" required>
+  <input name="validUntil" type="date" required>
+  <button>Criar</button>
+</form>
+<ul>
+  <% coupons.forEach(c => { %>
+    <li>
+      <strong><%= c.code %></strong> | <%= c.description || 'Sem descrição' %> | <%= c.discountType === 'fixed_shipping' ? 'entrega grátis' : c.discountValue + '%' %> |
+      <%= c.isActive ? 'ativo' : 'inativo' %> |
+      usos <%= c.currentUses %>/<%= c.maxUses == null ? '∞' : c.maxUses %> |
+      enviados <%= (c.sentToUsers && c.sentToUsers.length) || 0 %>
+      <form method="post" action="/supermarket/coupons/<%= c._id %>?_method=PUT" style="display:inline">
+        <input name="discountValue" type="number" step="0.01" value="<%= c.discountValue %>" style="width:80px">
+        <button>Atualizar valor</button>
+      </form>
+      <form method="post" action="/supermarket/coupons/<%= c._id %>?_method=DELETE" style="display:inline">
+        <button>Desativar</button>
+      </form>
+    </li>
+  <% }) %>
+</ul>

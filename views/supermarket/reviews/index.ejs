@@ -1,0 +1,12 @@
+<p class="mb-2"><a href="/supermarket/dashboard">← Voltar ao dashboard</a></p>
+<h2>Avaliações Recebidas</h2>
+<p>Rating médio: <%= averageRating %></p>
+<% reviews.forEach(r => { %>
+  <div>
+    <strong><%= r.rating %>/5</strong> - <%= r.comment || 'Sem comentário' %>
+    <form method="post" action="/supermarket/reviews/<%= r._id %>/reply">
+      <input name="reply" placeholder="Responder">
+      <button>Responder</button>
+    </form>
+  </div>
+<% }) %>

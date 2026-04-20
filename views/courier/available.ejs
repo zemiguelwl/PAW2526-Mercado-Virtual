@@ -1,0 +1,8 @@
+<p class="mb-2"><a href="/courier/dashboard">← Voltar ao dashboard</a></p>
+<h2>Entregas disponíveis</h2>
+<% deliveries.forEach(d => { %>
+  <div>
+    Entrega <%= d._id %> - pedido <%= d.order?._id %>
+    <form method="post" action="/courier/deliveries/<%= d._id %>/accept" style="display:inline"><button>Aceitar</button></form>
+  </div>
+<% }) %>
