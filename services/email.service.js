@@ -123,7 +123,7 @@ async function sendCouponEmail(toEmail, userName, couponCode, discountDescriptio
       </div>
     `;
     await transporter.sendMail({
-      from: { address: process.env.EMAIL_FROM || process.env.EMAIL_USER, name: "Mercadinho Virtual" },
+      from: { address: process.env.EMAIL_FROM, name: "Mercadinho Virtual" },
       to: toEmail,
       subject: `Novo cupão: ${couponCode} | Mercadinho Virtual`,
       html

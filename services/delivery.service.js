@@ -13,7 +13,6 @@
  *   - Estatísticas de desempenho do courier (para o dashboard)
  *   - Validações antes de aceitar entrega (evita ter mais de 1 ativa)
  */
-
 const mongoose = require("mongoose");
 const Delivery = require("../models/Delivery");
 
