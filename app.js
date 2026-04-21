@@ -102,9 +102,16 @@ app.use((req, res) => {
 // Middleware de erro global 
 app.use((err, req, res, next) => {
   console.error("Erro não tratado:", err.stack || err.message);
-  res.status(500).render("errors/404", {
-    title: "Erro interno",
-    message: process.env.NODE_ENV === "production" ? "Ocorreu um erro interno." : err.message
+  const message = process.env.NODE_ENV === "production"
+    ? "Ocorreu um erro interno. Tenta novamente."
+    : err.message;
+  // Tenta renderizar errors/500 se existir, senão usa errors/404 como fallback
+  res.status(500).render("errors/500", { title: "Erro interno", message }, (renderErr, html) => {
+    if (renderErr) {
+      // View errors/500 não existe — usar 404 como fallback
+      return res.status(500).render("errors/404", { title: "Erro interno", message });
+    }
+    res.send(html);
   });
 });
 

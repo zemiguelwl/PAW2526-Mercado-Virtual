@@ -30,7 +30,6 @@ async function transitionOrderStatus(orderId, newStatus, changedByUserId, reason
     }
   }
 
-  const previousStatus = order.status;
   order.status = newStatus;
   order.statusHistory.push({ status: newStatus, changedBy: changedByUserId, reason });
 
