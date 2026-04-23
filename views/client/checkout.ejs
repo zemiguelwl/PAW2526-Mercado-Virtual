@@ -18,6 +18,14 @@
     </div>
   </div>
 
+  <div class="card mb-3">
+    <div class="card-body">
+      <label class="form-label" for="couponCode">Cupão de desconto (opcional)</label>
+      <input class="form-control" type="text" id="couponCode" name="couponCode" placeholder="Insere o código do cupão">
+      <div class="form-text">Se tiveres um cupão válido, insere o código aqui para aplicar o desconto.</div>
+    </div>
+  </div>
+
   <% if (!deliveryOptions.length) { %>
     <div class="alert alert-warning">Este supermercado não tem métodos de entrega configurados para compra online. Contacta o suporte.</div>
   <% } else { %>
