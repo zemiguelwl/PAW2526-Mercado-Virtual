@@ -110,18 +110,22 @@ async function cancelOrder(req, res, next) {
       req.flash("error", "Encomenda não encontrada.");
       return res.redirect("/client/orders");
     }
+
     try {
       await transitionOrderStatus(req.params.id, "cancelled", req.session.user.id, req.body.reason || "Cancelado pelo cliente");
       req.flash("success", "Encomenda cancelada.");
+      // parar o fluxo aqui após o sucesso
+      return res.redirect(`/client/orders/${req.params.id}`);
     } catch (err) {
+      // Se a transição falhar (ex: já não está pending), mostramos o erro e redirecionamos apenas uma vez
       req.flash("error", err.message);
-      next(err);
+      return res.redirect(`/client/orders/${req.params.id}`);
     }
-    res.redirect(`/client/orders/${req.params.id}`);
   } catch (err) {
     next(err);
   }
 }
+
 
 async function cartView(req, res, next) {
   try {

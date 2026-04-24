@@ -53,11 +53,20 @@
     </div>
   <% } %>
 
-  <% if (canCancel) { %>
+  <% if (order.status === 'pending') { %>
     <form method="post" action="/client/orders/<%= order._id %>/cancel" class="js-confirm-cancel-order">
-      <input class="form-control mb-2" name="reason" placeholder="Motivo (opcional)">
-      <button class="btn btn-outline-danger" type="submit">Cancelar encomenda</button>
+      <div class="card card-body border-danger-subtle bg-light-subtle">
+        <label class="form-label small fw-bold text-danger">Atenção</label>
+        <input class="form-control form-control-sm mb-2" name="reason" placeholder="Motivo do cancelamento (opcional)">
+        <button class="btn btn-outline-danger btn-sm w-100" type="submit">Cancelar encomenda</button>
+      </div>
     </form>
+  <% } else if (order.status !== 'cancelled' && order.status !== 'delivered') { %>
+    <div class="alert alert-light border small d-flex align-items-center">
+      <i class="bi bi-info-circle me-2"></i>
+      <span>A encomenda já foi aceite pelo supermercado e não pode ser cancelada.</span>
+    </div>
   <% } %>
+
 </div>
 <script src="/javascripts/client-order-detail.js"></script>

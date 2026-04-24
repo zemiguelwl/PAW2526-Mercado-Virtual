@@ -23,23 +23,27 @@
         <h2 class="h5 mb-0">Transição de estado</h2>
       </div>
       <div class="card-body d-grid gap-2">
-        <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/confirm">
-          <button class="btn btn-outline-primary w-100" type="submit">Confirmar</button>
-        </form>
-        <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/start-preparing">
-          <button class="btn btn-outline-primary w-100" type="submit">Iniciar preparação</button>
-        </form>
-        <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/ready">
-          <button class="btn btn-outline-primary w-100" type="submit">Marcar pronta</button>
-        </form>
-        <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/delivered">
-          <button class="btn btn-outline-success w-100" type="submit">Marcar entregue</button>
-        </form>
-        <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/reject" class="mt-2">
-          <label class="form-label small" for="reason">Motivo rejeição/cancelamento</label>
-          <input id="reason" name="reason" class="form-control form-control-sm mb-2" placeholder="Opcional">
-          <button class="btn btn-outline-danger w-100" type="submit">Rejeitar / cancelar</button>
-        </form>
+        <div class="card-body d-grid gap-2">
+          <% if (locals.order.status === 'pending') { %>
+            <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/confirm">
+              <button class="btn btn-primary w-100" type="submit">Confirmar Pedido</button>
+            </form>
+            <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/reject">
+              <input name="reason" class="form-control form-control-sm mb-2" placeholder="Motivo">
+              <button class="btn btn-outline-danger w-100" type="submit">Rejeitar</button>
+            </form>
+          <% } else if (locals.order.status === 'confirmed') { %>
+            <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/start-preparing">
+              <button class="btn btn-primary w-100" type="submit">Iniciar Preparação</button>
+            </form>
+          <% } else if (locals.order.status === 'preparing') { %>
+            <form method="POST" action="/supermarket/orders/<%= locals.order._id %>/ready">
+              <button class="btn btn-primary w-100" type="submit">Marcar como Pronta para Recolha</button>
+            </form>
+          <% } else if (locals.order.status === 'ready') { %>
+            <div class="alert alert-info small mb-0">A aguardar que o estafeta recolha o pedido.</div>
+          <% } %>
+        </div>
       </div>
     </div>
   </div>

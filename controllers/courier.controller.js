@@ -26,7 +26,28 @@ async function dashboard(req, res, next) {
         { $project: { _id: 0, supermarketName: "$supermarket.name", total: 1 } }
       ])
     ]);
-    res.render("courier/dashboard", { title: "Dashboard Estafeta", activeDelivery, totalDeliveries, topSupermarkets });
+    // Extrair a activeOrder da entrega populada
+    let activeOrder = activeDelivery?.order || null;
+
+    // DEBUG: Verificar o que está a ser enviado para a vista
+    console.log(`[DEBUG Dashboard] Delivery ID: ${activeDelivery?._id}`);
+    console.log(`[DEBUG Dashboard] Delivery Status: ${activeDelivery?.status}`);
+    console.log(`[DEBUG Dashboard] Order Status via Populate: ${activeOrder?.status}`);
+
+    // Se por alguma razão o populate falhou mas temos o ID, tentamos carregar manualmente
+    if (!activeOrder && activeDelivery?.order) {
+      const Order = require("../models/Order");
+      activeOrder = await Order.findById(activeDelivery.order).lean();
+      console.log(`[DEBUG Dashboard] Order Status via Manual Fetch: ${activeOrder?.status}`);
+    }
+
+    res.render("courier/dashboard", { 
+      title: "Dashboard Estafeta", 
+      activeDelivery, 
+      activeOrder, 
+      totalDeliveries, 
+      topSupermarkets 
+    });
   } catch (err) {
     next(err);
   }
@@ -44,37 +65,26 @@ async function available(req, res, next) {
 async function accept(req, res, next) {
   try {
     const courierId = req.session.user.id;
+    const deliveryId = req.params.id;
+
+    // 1. Verificar se o estafeta já tem uma entrega ativa
     const activeDelivery = await Delivery.findOne({ courier: courierId, status: { $in: ["accepted", "picked_up"] } });
     if (activeDelivery) {
       req.flash("error", "Já tens uma entrega ativa.");
       return res.redirect("/courier/available");
     }
-    const delivery = await Delivery.findOneAndUpdate(
-      { _id: req.params.id, status: "available" },
-      { courier: courierId, status: "accepted", acceptedAt: new Date(), $push: { statusHistory: { status: "accepted", changedBy: courierId } } },
-      { new: true }
-    );
-    if (!delivery) {
-      req.flash("error", "Esta entrega já foi aceite por outro courier.");
-      return res.redirect("/courier/available");
-    }
-    try {
-      await onCourierAcceptDelivery(delivery.order, courierId);
-      req.flash("success", "Entrega aceite.");
-    } catch (err) {
-      // Se a transição de estado falhar, reverter delivery para available
-      // para que outro estafeta possa aceitar 
-      await Delivery.findByIdAndUpdate(delivery._id, {
-        courier: null,
-        status: "available",
-        acceptedAt: null
-      });
-      req.flash("error", `Erro ao aceitar entrega: ${err.message}`);
-      next(err);
-    }
+
+    // 2. Delegar toda a lógica de aceitação e validação ao serviço
+    await onCourierAcceptDelivery(deliveryId, courierId);
+
+    req.flash("success", "Entrega aceite.");
     res.redirect("/courier/dashboard");
   } catch (err) {
-    next(err);
+    // Capturar qualquer erro do serviço e mostrar ao utilizador via Flash
+    // Isto ajuda a diagnosticar se o erro é de estado, de ID ou de BD
+    console.error(`[CONTROLLER ERROR] Falha na aceitação: ${err.message}`);
+    req.flash("error", err.message);
+    return res.redirect("/courier/available");
   }
 }
 

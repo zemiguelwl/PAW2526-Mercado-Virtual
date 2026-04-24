@@ -6,32 +6,6 @@
 </div>
 
 <div class="row g-3 mb-4">
-  <div class="col-12 col-md-6">
-    <div class="card h-100">
-      <div class="card-body">
-        <p class="text-muted mb-1">Entrega ativa</p>
-        <% if (locals.activeDelivery) { %>
-          <p class="mb-0">
-            <span class="badge text-bg-primary"><%= locals.activeDelivery.status %></span>
-            <span class="ms-2">#<%= String(locals.activeDelivery._id).slice(-6).toUpperCase() %></span>
-          </p>
-        <% } else { %>
-          <p class="mb-0 text-muted">Sem entrega ativa.</p>
-        <% } %>
-      </div>
-    </div>
-  </div>
-  <div class="col-12 col-md-6">
-    <div class="card bo-stat-card h-100">
-      <div class="card-body">
-        <p class="text-muted mb-1">Total entregas concluídas</p>
-        <p class="display-6 mb-0"><%= locals.totalDeliveries || 0 %></p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="row g-3 mb-4">
   <div class="col-12 col-lg-7">
     <div class="card h-100">
       <div class="card-header bg-white">
@@ -43,13 +17,23 @@
 
           <div class="d-flex flex-wrap gap-2 mb-3">
             <% if (locals.activeDelivery.status === "accepted") { %>
-              <form method="POST" action="/courier/deliveries/<%= locals.activeDelivery._id %>/picked-up">
-                <button class="btn btn-outline-primary" type="submit">Marcar levantamento</button>
-              </form>
+              <% if (locals.activeOrder && locals.activeOrder.status === 'ready') { %>
+                <form method="POST" action="/courier/deliveries/<%= locals.activeDelivery._id %>/picked-up">
+                  <button class="btn btn-primary" type="submit">Marcar levantamento</button>
+                </form>
+              <% } else { %>
+                <div class="alert alert-warning d-flex align-items-center w-100 mb-0" role="alert">
+                  <i class="bi bi-clock-history me-2"></i>
+                  <div>
+                    <strong>Aguarde:</strong> O supermercado ainda está a preparar os itens.
+                  </div>
+                </div>
+              <% } %>
             <% } %>
+
             <% if (locals.activeDelivery.status === "picked_up") { %>
               <form method="POST" action="/courier/deliveries/<%= locals.activeDelivery._id %>/delivered">
-                <button class="btn btn-success" type="submit">Marcar entregue</button>
+                <button class="btn btn-success" type="submit">Marcar entregue ao cliente</button>
               </form>
             <% } %>
           </div>
@@ -91,4 +75,3 @@
     </div>
   </div>
 </div>
-

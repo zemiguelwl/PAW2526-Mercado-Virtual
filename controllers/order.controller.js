@@ -1,26 +1,33 @@
-/**
- * order.controller.js
- *
- * Controlador dedicado a relatórios e análises de encomendas.
- * A gestão do ciclo de vida das encomendas (confirmar, preparar, entregar,
- * cancelar) já está implementada em:
- *   - supermarket.controller.js  (ações do supermercado)
- *   - client.controller.js       (encomendas e cancelamento pelo cliente)
- *   - admin.controller.js        (monitorização e cancelamento forçado pelo admin)
- *   - order.service.js           (máquina de estados central)
- *
- * Este módulo trata de:
- *   - Estatísticas agregadas de encomendas (para dashboards)
- *   - Histórico de encomendas de um cliente (para o admin consultar)
- *   - Revenue e métricas por supermercado
- */
-
 const mongoose = require("mongoose");
 const Order = require("../models/Order");
 
 /**
+ * Valida se a transição para um novo estado é permitida de acordo com as regras de negócio.
+ */
+async function updateOrderStatus(orderId, newStatus) {
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new Error("Encomenda não encontrada.");
+  }
+
+  const rules = {
+    'pending': ['confirmed', 'cancelled'],
+    'confirmed': ['preparing'],
+    'preparing': ['ready'],
+    'ready': ['in_delivery'],
+    'in_delivery': ['delivered']
+  };
+
+  // Verifica se o estado atual existe nas regras e se a transição é válida
+  if (!rules[order.status] || !rules[order.status].includes(newStatus)) {
+    throw new Error(`Transição de ${order.status} para ${newStatus} não permitida.`);
+  }
+
+  return order;
+}
+
+/**
  * Retorna estatísticas globais de encomendas.
- * Útil para o dashboard do admin ou relatórios.
  */
 async function getGlobalStats() {
   const [byStatus, totals] = await Promise.all([
@@ -50,7 +57,7 @@ async function getOrdersByClient(clientId) {
 }
 
 /**
- * retorna receita e número de encomendas agrupado por supermercado
+ * retorna revenue e número de encomendas agrupado por supermercado
  */
 async function getRevenueBySupermarket() {
   return Order.aggregate([
@@ -77,9 +84,9 @@ async function getOrdersByDateRange(startDate, endDate) {
 
 /**
  * GET /admin/orders/stats
- * Rota opcional — para ativar, adicionar em admin.routes.js:
- *   const orderCtrl = require('../controllers/order.controller');
- *   router.get('/orders/stats', orderCtrl.statsPage);
+ * adicionar em admin.routes.js:
+ * const orderCtrl = require('../controllers/order.controller');
+ * router.get('/orders/stats', orderCtrl.statsPage);
  */
 async function statsPage(req, res, next) {
   try {
@@ -98,7 +105,7 @@ async function statsPage(req, res, next) {
 
 /**
  * GET /admin/users/:id/orders
- * Rota opcional — para ativar, adicionar em admin.routes.js:
+ * adicionar em admin.routes.js:
  *   const orderCtrl = require('../controllers/order.controller');
  *   router.get('/users/:id/orders', orderCtrl.clientHistory);
  */

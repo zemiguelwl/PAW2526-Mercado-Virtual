@@ -4,15 +4,14 @@ const User = require("../models/User");
 const emailService = require("./email.service");
 
 // Define transições válidas de estado para o ciclo de vida da encomenda.
-// O serviço centraliza a lógica para evitar alterações incoerentes diretas em controllers.
 const VALID_TRANSITIONS = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["preparing", "cancelled"],
-  preparing: ["ready", "in_delivery", "cancelled"],
-  ready: ["delivered", "cancelled"],
+  pending:     ["confirmed", "cancelled"],
+  confirmed:   ["preparing", "cancelled"],
+  preparing:   ["ready", "cancelled"],           
+  ready:       ["in_delivery", "delivered", "cancelled"], 
   in_delivery: ["delivered", "cancelled"],
-  delivered: [],
-  cancelled: []
+  delivered:   [],
+  cancelled:   []
 };
 
 async function transitionOrderStatus(orderId, newStatus, changedByUserId, reason = null) {
@@ -24,26 +23,41 @@ async function transitionOrderStatus(orderId, newStatus, changedByUserId, reason
 
   if (newStatus === "cancelled" && changedByUserId) {
     const user = await User.findById(changedByUserId);
-    if (user && user.role === "client" && order.confirmedAt) {
-      const minutesElapsed = (Date.now() - order.confirmedAt.getTime()) / 1000 / 60;
-      if (minutesElapsed > 5) throw new Error("O prazo de cancelamento de 5 minutos já expirou.");
+    // apenas clientes em estado "pending" podem cancelar.
+    if (user && user.role === "client" && order.status !== "pending") {
+      throw new Error("Só é possível cancelar encomendas pendentes.");
     }
   }
 
   order.status = newStatus;
   order.statusHistory.push({ status: newStatus, changedBy: changedByUserId, reason });
 
-  if (newStatus === "confirmed") order.confirmedAt = new Date();
-  if (newStatus === "preparing" && order.deliveryMethod === "courier") {
-    // Criar a delivery apenas quando a encomenda prepara para entrega por estafeta
-    const existing = await Delivery.findOne({ order: order._id, status: { $ne: "cancelled" } });
-    if (!existing) {
-      await Delivery.create({
-        order: order._id,
-        supermarket: order.supermarket,
-        status: "available",
-        statusHistory: [{ status: "available", changedBy: changedByUserId }]
-      });
+  if (newStatus === "confirmed") {
+    order.confirmedAt = new Date();
+
+    // O estafeta pode aceitar logo que o supermercado confirma, sem bloquear a preparação.
+    if (order.deliveryMethod === "courier") {
+      const existing = await Delivery.findOne({ order: order._id, status: { $ne: "cancelled" } });
+      if (!existing) {
+        console.log(`[DEBUG] Criando nova Delivery para Order: ${order._id}`);
+        await Delivery.create({
+          order: order._id,
+          supermarket: order.supermarket,
+          status: "available",
+          statusHistory: [{ status: "available", changedBy: changedByUserId }]
+        });
+        console.log(`[DEBUG] Delivery criada com sucesso como 'available'`);
+      } else {
+        console.log(`[DEBUG] Delivery já existe para esta Order. Estado: ${existing.status}`);
+      }
+    }
+  }
+
+  if (newStatus === "ready") {
+    // Sincronizar com a Delivery para que o estafeta saiba que pode levantar
+    const delivery = await Delivery.findOne({ order: order._id, status: "accepted" });
+    if (delivery) {
+      console.log(`[DEBUG] Sincronizando Delivery para 'ready' (Order: ${order._id})`);
     }
   }
 
@@ -59,7 +73,7 @@ async function transitionOrderStatus(orderId, newStatus, changedByUserId, reason
 
   await order.save();
 
-  // uma falha não deve bloquear nem reverter a transição de estado.
+  // Uma falha de email não deve bloquear nem reverter a transição de estado.
   try {
     const cancelReason = newStatus === "cancelled" ? reason : null;
     await emailService.sendOrderStatusUpdate(order, newStatus, cancelReason);
@@ -70,8 +84,60 @@ async function transitionOrderStatus(orderId, newStatus, changedByUserId, reason
   return order;
 }
 
-async function onCourierAcceptDelivery(orderId, courierId) {
-  return transitionOrderStatus(orderId, "in_delivery", courierId, "Courier aceitou a entrega");
+// O estafeta aceita a delivery (fica com courier atribuído) mas o order mantém o estado
+// até o supermercado avançar para "ready" e o estafeta levantar fisicamente o pedido.
+async function onCourierAcceptDelivery(deliveryId, courierId) {
+
+  console.log(`[DEBUG] Tentativa de aceitação - DeliveryID: ${deliveryId}, CourierID: ${courierId}`);
+  
+  // Garantir que o ID é tratado como um ObjectId válido para a consulta
+  const query = { _id: deliveryId };
+  const deliveryCheck = await Delivery.findById(deliveryId).lean();
+  
+  if (!deliveryCheck) {
+    console.error(`[ERROR] Delivery não encontrada na BD para o ID: ${deliveryId}`);
+    throw new Error("Entrega não encontrada no sistema.");
+  }
+  
+  console.log(`[DEBUG] Estado atual da Delivery na BD: ${deliveryCheck.status}`);
+
+  const delivery = await Delivery.findOne({ _id: deliveryId, status: "available" }).populate("order");
+  
+  if (!delivery) {
+    throw new Error(`Entrega não disponível para aceitação (Estado atual: ${deliveryCheck.status}).`);
+  }
+
+  // A encomenda deve estar pelo menos confirmada pelo supermercado
+  const validOrderStatuses = ["confirmed", "preparing", "ready"];
+  if (!validOrderStatuses.includes(delivery.order.status)) {
+    throw new Error(`A encomenda ainda está em estado ${delivery.order.status}. Aguarda confirmação.`);
+  }
+
+  delivery.courier = courierId;
+  delivery.status = "accepted";
+  delivery.acceptedAt = new Date();
+  delivery.statusHistory.push({ status: "accepted", changedBy: courierId });
+  await delivery.save();
+  return delivery;
+}
+
+// transiciona o order de "ready" para "in_delivery" quando o estafeta levanta o pedido.
+async function onCourierPickedUp(deliveryId, courierId) {
+  const delivery = await Delivery.findOne({ _id: deliveryId, courier: courierId, status: "accepted" });
+  if (!delivery) throw new Error("Entrega não encontrada ou não pertence ao courier.");
+
+  const order = await Order.findById(delivery.order);
+  if (!order) throw new Error("Encomenda associada não encontrada.");
+  if (order.status !== "ready") {
+    throw new Error("Só podes levantar o pedido depois de o supermercado o marcar como pronto.");
+  }
+
+  delivery.status = "picked_up";
+  delivery.statusHistory.push({ status: "picked_up", changedBy: courierId });
+  await delivery.save();
+
+  await transitionOrderStatus(delivery.order, "in_delivery", courierId, "Pedido levantado pelo estafeta");
+  return { order, delivery };
 }
 
 async function onCourierCancelDelivery(deliveryId, courierId, reason) {
@@ -81,28 +147,25 @@ async function onCourierCancelDelivery(deliveryId, courierId, reason) {
     throw new Error("Só podes cancelar entregas aceites ou levantadas.");
   }
 
+  const previousOrderStatus = delivery.status === "picked_up" ? "preparing" : "confirmed";
+
   delivery.status = "available";
   delivery.courier = null;
   delivery.acceptedAt = null;
-  delivery.statusHistory.push({
-    status: "cancelled",
-    changedBy: courierId,
-    reason: reason || "Cancelada pelo courier"
-  });
-  delivery.statusHistory.push({
-    status: "available",
-    changedBy: courierId,
-    reason: "Entrega novamente disponível para atribuição"
-  });
+  delivery.statusHistory.push(
+    { status: "cancelled", changedBy: courierId, reason: reason || "Cancelada pelo courier" },
+    { status: "available", changedBy: courierId, reason: "Entrega novamente disponível para atribuição" }
+  );
   await delivery.save();
 
   const order = await Order.findById(delivery.order);
   if (!order) throw new Error("Encomenda associada não encontrada.");
-  order.status = "preparing";
+  // Repõe o order no estado anterior ao levantamento
+  order.status = previousOrderStatus;
   order.statusHistory.push({
-    status: "preparing",
+    status: previousOrderStatus,
     changedBy: courierId,
-    reason: "Courier cancelou entrega. Voltou a preparação."
+    reason: "Courier cancelou entrega. Estado reposto."
   });
   await order.save();
   return { order, delivery };
@@ -143,6 +206,7 @@ async function createPOSSale(orderData, cashierId) {
 module.exports = {
   transitionOrderStatus,
   onCourierAcceptDelivery,
+  onCourierPickedUp,
   onCourierCancelDelivery,
   onCourierDelivered,
   createPOSSale
