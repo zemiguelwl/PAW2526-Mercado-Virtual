@@ -1,6 +1,6 @@
 # Mercadinho Virtual
 
-> Plataforma web de marketplace para supermercados locais — Trabalho Prático de PAW (Programação em Ambiente Web), ESTG · Instituto Politécnico do Porto
+> Plataforma web de marketplace para supermercados locais - Trabalho Prático de PAW (Programação em Ambiente Web), ESTG · Instituto Politécnico do Porto
 
 ---
 
@@ -63,6 +63,8 @@ O **Mercadinho Virtual** é uma plataforma digital centralizada onde vários sup
 
 ## Tecnologias
 
+### Backoffice (Milestone 1 — EJS)
+
 | Camada | Tecnologia |
 |---|---|
 | Runtime | Node.js |
@@ -73,6 +75,18 @@ O **Mercadinho Virtual** é uma plataforma digital centralizada onde vários sup
 | Email | Nodemailer + Mailtrap API |
 | Upload de ficheiros | Multer |
 | Segurança | Helmet, express-rate-limit, express-validator |
+
+### Frontoffice (Milestone 2 — Angular)
+
+| Camada | Tecnologia |
+|---|---|
+| Framework | Angular 20 (NgModules) |
+| UI | Angular Material 20 (M3) |
+| Formulários | Template-driven Forms (`[(ngModel)]`) |
+| HTTP | HttpClient + `HTTP_INTERCEPTORS` (JWT Bearer) |
+| Estado | RxJS `BehaviorSubject` (auth, carrinho) |
+| Routing | Lazy-loaded feature modules + `CanActivate` guards |
+| API docs | Swagger UI (OpenAPI 3.0) |
 
 ---
 
@@ -132,25 +146,25 @@ O projeto segue o padrão **MVC (Model-View-Controller)**:
 git clone https://github.com/zemiguelwl/Mercado-Virtual.git
 cd Mercado-Virtual
 
-# 2. Instalar dependências
+# 2. Instalar dependências do backend
 npm install
 
-# 3. Configurar variáveis de ambiente
+# 3. Instalar dependências do frontoffice Angular
+cd frontend && npm install && cd ..
+
+# 4. Configurar variáveis de ambiente
 cp .env.example .env
 # Editar o ficheiro .env com os valores reais
 
-# 4. (Opcional) Popular a base de dados com dados de teste
+# 5. (Opcional) Popular a base de dados com dados de teste
 node seed.js
-
-# 5. Iniciar o servidor
-npm start
 ```
 
 ---
 
-> **Nota:** Em `NODE_ENV=development`, o login funciona via HTTP (localhost). Em `production`, é exigido HTTPS — não alterar para produção em ambiente local.
+> **Nota:** Em `NODE_ENV=development`, o login funciona via HTTP (localhost). Em `production`, é exigido HTTPS - não alterar para produção em ambiente local.
 
-> **Nota:** `SESSION_SECRET` é obrigatório — a aplicação não arranca sem esta variável definida.
+> **Nota:** `SESSION_SECRET` é obrigatório - a aplicação não arranca sem esta variável definida.
 
 > **Nota:** Se `EMAIL_API_TOKEN` não estiver definido, o registo de novos utilizadores fica bloqueado. Usa as contas do `seed.js` para contornar.
 
@@ -158,17 +172,37 @@ npm start
 
 ## Executar o Projeto
 
-```bash
-# Desenvolvimento
-npm start
+O projeto requer **dois processos em simultâneo**: o servidor Express (backend + backoffice EJS) e o servidor de desenvolvimento Angular (frontoffice).
 
-# Popular base de dados com dados de teste
-node seed.js
+### Terminal 1 — Backend (Express + MongoDB)
+
+```bash
+# Na raiz do projeto
+npm start
 ```
 
-O servidor fica disponível em `http://localhost:3000`.
+Disponível em `http://localhost:3000`
+- Backoffice EJS: `http://localhost:3000/auth/login`
+- REST API: `http://localhost:3000/api/v1/...`
+- Documentação Swagger: `http://localhost:3000/api/docs`
 
-A página inicial redireciona para o catálogo público (`/catalog`). Para aceder ao backoffice, faz login em `/auth/login`.
+### Terminal 2 — Frontoffice Angular
+
+```bash
+# Na pasta frontend/
+cd frontend
+npm start
+```
+
+Disponível em `http://localhost:4200`
+- O servidor Angular faz proxy das chamadas `/api/*` para `http://127.0.0.1:3000` automaticamente.
+- **Ambos os terminais têm de estar ativos** para o frontoffice funcionar corretamente.
+
+### Popular base de dados
+
+```bash
+node seed.js
+```
 
 ---
 
@@ -250,7 +284,7 @@ services/
 | POST | `/auth/register` | Criar conta |
 | POST | `/auth/verify-email` | Validar código de verificação |
 
-### Cliente `/client` — requer autenticação + role `client`
+### Cliente `/client` - requer autenticação + role `client`
 
 | Método | Rota | Descrição |
 |---|---|---|
@@ -262,7 +296,7 @@ services/
 | GET | `/client/orders` | Histórico de encomendas |
 | POST | `/client/orders/:id/cancel` | Cancelar encomenda |
 
-### Supermercado `/supermarket` — requer autenticação + role `supermarket` + aprovação
+### Supermercado `/supermarket` - requer autenticação + role `supermarket` + aprovação
 
 | Método | Rota | Descrição |
 |---|---|---|
@@ -276,7 +310,7 @@ services/
 | POST | `/supermarket/pos/checkout` | Finalizar venda presencial |
 | GET | `/supermarket/orders` | Gerir encomendas |
 
-### Estafeta `/courier` — requer autenticação + role `courier`
+### Estafeta `/courier` - requer autenticação + role `courier`
 
 | Método | Rota | Descrição |
 |---|---|---|
@@ -287,7 +321,7 @@ services/
 | POST | `/courier/deliveries/:id/delivered` | Marcar como entregue |
 | GET | `/courier/history` | Histórico de entregas |
 
-### Administrador `/admin` — requer autenticação + role `admin`
+### Administrador `/admin` - requer autenticação + role `admin`
 
 | Método | Rota | Descrição |
 |---|---|---|
@@ -299,3 +333,74 @@ services/
 | GET | `/admin/orders` | Monitorizar encomendas |
 | GET | `/admin/coupons` | Gerir cupões globais |
 
+---
+
+## REST API — Frontoffice Angular (`/api/v1`)
+
+> Documentação interativa completa em `http://localhost:3000/api/docs`
+
+### Auth (`/api/v1/auth`)
+
+| Método | Rota | Descrição |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Criar conta (client ou courier) |
+| POST | `/api/v1/auth/verify-email` | Verificar email com código de 6 dígitos |
+| POST | `/api/v1/auth/resend-verification` | Reenviar código de verificação |
+| POST | `/api/v1/auth/login` | Login — retorna JWT (24h) |
+| GET | `/api/v1/auth/me` | Dados do utilizador autenticado |
+
+### Catálogo (`/api/v1/catalog`) — público
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/v1/catalog/products` | Listar produtos (pesquisa, filtros, paginação) |
+| GET | `/api/v1/catalog/products/:id` | Detalhe de produto |
+| GET | `/api/v1/catalog/categories` | Listar categorias ativas |
+| GET | `/api/v1/catalog/supermarkets` | Listar supermercados aprovados |
+| GET | `/api/v1/catalog/supermarkets/:id` | Detalhe de supermercado |
+| GET | `/api/v1/catalog/supermarkets/:id/reviews` | Avaliações de um supermercado |
+| GET | `/api/v1/catalog/compare` | Comparar preços entre supermercados |
+
+### Cliente (`/api/v1/client`) — requer JWT
+
+| Método | Rota | Descrição |
+|---|---|---|
+| GET | `/api/v1/client/profile` | Perfil + estatísticas do cliente |
+| PUT | `/api/v1/client/profile` | Atualizar perfil |
+| GET | `/api/v1/client/orders` | Listar encomendas |
+| GET | `/api/v1/client/orders/:id` | Detalhe de encomenda |
+| POST | `/api/v1/client/orders/:id/cancel` | Cancelar encomenda |
+| POST | `/api/v1/client/orders/:id/review` | Submeter avaliação |
+| POST | `/api/v1/client/checkout` | Criar encomenda |
+| GET | `/api/v1/client/coupons/validate` | Validar cupão |
+
+---
+
+## Milestones
+
+### Milestone 1 — Backoffice EJS ✅
+
+Interface administrativa desenvolvida com EJS, Express e CSS nativo. Cobre todos os perfis de utilizador (admin, supermercado, estafeta) e respetivas funcionalidades.
+
+**URL:** `http://localhost:3000`
+
+### Milestone 2 — Frontoffice Angular + REST API ✅
+
+Single Page Application desenvolvida em Angular 20 com NgModules (arquitetura pedagógica obrigatória), Angular Material M3 e JWT. Cobre o perfil de cliente.
+
+**URL:** `http://localhost:4200`
+
+Requisitos técnicos cumpridos:
+- Angular NgModules — zero componentes standalone
+- Template-driven Forms com `[(ngModel)]`
+- RxJS `BehaviorSubject` para estado partilhado (auth, carrinho)
+- `HttpInterceptor` para injeção automática de JWT em todos os pedidos
+- `CanActivate` guards (`AuthGuard` e `GuestGuard`)
+- Lifecycle hooks `ngOnInit` e `ngOnDestroy` em todos os componentes
+- Módulos carregados em `lazy loading` (auth, catalog, cart, orders, profile)
+- `debounceTime` + `distinctUntilChanged` na pesquisa do catálogo
+- `takeUntil(destroy$)` para cancelamento de subscrições
+- Módulo partilhado `SharedModule` com `NavbarComponent`
+- REST API com 15 endpoints documentados em Swagger (OpenAPI 3.0)
+- Tokens JWT válidos 24h, armazenados em `localStorage`
+- Carrinho persistente em `localStorage` (`mv_cart`)

@@ -2,11 +2,11 @@
   "name": "mercadinho-virtual",
   "version": "1.0.0",
   "description": "Mercadinho Virtual - Milestone 1",
-  "main": "app.js",
+  "main": "backend/app.js",
   "scripts": {
-    "start": "node ./bin/www",
-    "dev": "nodemon ./bin/www",
-    "seed": "node seed.js",
+    "start": "node ./backend/bin/www",
+    "dev": "nodemon ./backend/bin/www",
+    "seed": "node backend/seed.js",
     "test": "jest --runInBand"
   },
   "dependencies": {

@@ -1,8 +1,65 @@
-.orders-page { padding: 24px; max-width: 800px; margin: 0 auto; }
+.orders-page { padding: 24px; max-width: 1100px; margin: 0 auto; }
+
+/* Cabeçalho */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; }
+.page-title { font-size: 1.5rem; font-weight: 700; color: #1a2332; margin: 0 0 4px; }
+.page-subtitle { color: #6c757d; font-size: 0.88rem; margin: 0; }
+.back-btn { align-self: center; }
+
+/* Estados */
 .loading-state, .empty-state { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 64px; color: #777; }
 .empty-state mat-icon { font-size: 64px; width: 64px; height: 64px; }
-.orders-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
-.order-card { cursor: pointer; transition: box-shadow 0.2s; }
-.order-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.status-chip { margin-left: 8px; font-size: 0.75rem; }
-.order-summary { display: flex; justify-content: space-between; margin-top: 8px; }
+
+/* Tabela */
+.orders-card { overflow: hidden; }
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.orders-table thead tr {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e8eaed;
+}
+
+.orders-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #1a2332;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.orders-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  color: #444;
+  vertical-align: middle;
+}
+
+.orders-table tbody tr:last-child td { border-bottom: none; }
+.orders-table tbody tr:hover { background: #fafafa; }
+
+.ref { font-weight: 600; color: #1a2332; }
+.total { font-weight: 600; color: #2d6a4f; }
+
+/* Status chips */
+.status-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-pending    { background: #fff3e0; color: #e65100; }
+.status-confirmed  { background: #e3f2fd; color: #1565c0; }
+.status-preparing  { background: #e3f2fd; color: #1565c0; }
+.status-ready      { background: #f3e5f5; color: #6a1b9a; }
+.status-in_delivery { background: #e8eaf6; color: #283593; }
+.status-delivered  { background: #e8f5e9; color: #2e7d32; }
+.status-cancelled  { background: #fce4ec; color: #c62828; }

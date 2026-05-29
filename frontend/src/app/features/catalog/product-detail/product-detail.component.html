@@ -1,0 +1,67 @@
+<div class="detail-page">
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && product">
+    <div class="breadcrumb">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon> Catálogo
+      </button>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ product.name }}</span>
+    </div>
+
+    <div class="product-layout">
+      <!-- Imagem -->
+      <div class="product-image-wrap">
+        <img
+          [src]="'/uploads/' + product.image"
+          [alt]="product.name"
+          class="product-image"
+          (error)="$any($event.target).onerror=null; $any($event.target).src='/product-placeholder.svg'"
+        />
+      </div>
+
+      <!-- Informação -->
+      <div class="product-info">
+        <p class="product-category">{{ product.category?.name }}</p>
+        <h1 class="product-name">{{ product.name }}</h1>
+        <p class="product-description" *ngIf="product.description">{{ product.description }}</p>
+
+        <p class="product-price">{{ product.price | currency:'EUR':'symbol':'1.2-2' }}</p>
+
+        <div class="stock-row">
+          <span class="stock-badge"
+            [class.stock-ok]="product.stock > 5"
+            [class.stock-low]="product.stock > 0 && product.stock <= 5"
+            [class.stock-out]="product.stock === 0">
+            {{ product.stock === 0 ? 'Esgotado' : product.stock <= 5 ? 'Últimas ' + product.stock + ' unidades' : 'Disponível' }}
+          </span>
+        </div>
+
+        <button mat-raised-button color="primary" class="add-btn"
+          (click)="addToCart()" [disabled]="product.stock === 0">
+          <mat-icon>{{ isLoggedIn ? 'add_shopping_cart' : 'login' }}</mat-icon>
+          {{ product.stock === 0 ? 'Esgotado' : addedToCart ? 'Adicionado!' : isLoggedIn ? 'Adicionar ao carrinho' : 'Entrar para comprar' }}
+        </button>
+
+        <!-- Supermercado -->
+        <mat-card class="sm-card" *ngIf="product.supermarket">
+          <mat-card-header>
+            <mat-card-title>{{ product.supermarket.name }}</mat-card-title>
+            <mat-card-subtitle>
+              <mat-icon class="inline-icon">location_on</mat-icon>
+              {{ product.supermarket.location }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <span class="open-badge" [class.open]="product.supermarket.isOpen" [class.closed]="!product.supermarket.isOpen">
+              {{ product.supermarket.isOpen ? 'Aberto agora' : 'Fechado' }}
+            </span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

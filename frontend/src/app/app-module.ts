@@ -1,6 +1,8 @@
 import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
@@ -12,7 +14,9 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    SharedModule
+    SharedModule,
+    FormsModule,
+    MatIconModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

@@ -2,8 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-catalog',
@@ -27,8 +29,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
   constructor(
     private catalogService: CatalogService,
     private cartService: CartService,
+    private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -53,6 +57,10 @@ export class CatalogComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get isLoggedIn(): boolean {
+    return this.authService.isLoggedIn();
   }
 
   loadProducts(): void {
@@ -96,9 +104,13 @@ export class CatalogComponent implements OnInit, OnDestroy {
   }
 
   addToCart(product: any): void {
+    if (!this.isLoggedIn) {
+      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/catalog' } });
+      return;
+    }
     const error = this.cartService.addItem(product);
     if (error) {
-      alert(error);
+      this.snackBar.open(error, 'OK', { duration: 4000, panelClass: 'snack-error' });
     } else {
       this.addedProductId = product._id;
       setTimeout(() => (this.addedProductId = null), 1500);

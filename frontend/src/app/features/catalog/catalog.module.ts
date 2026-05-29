@@ -10,14 +10,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatDividerModule } from '@angular/material/divider';
 
 import { CatalogRoutingModule } from './catalog-routing.module';
 import { CatalogComponent } from './catalog/catalog.component';
 import { CompareComponent } from './compare/compare.component';
 import { SupermarketListComponent } from './supermarket-list/supermarket-list.component';
+import { ReviewsDialogComponent } from './reviews-dialog/reviews-dialog.component';
+import { ProductDetailComponent } from './product-detail/product-detail.component';
 
 @NgModule({
-  declarations: [CatalogComponent, CompareComponent, SupermarketListComponent],
+  declarations: [CatalogComponent, CompareComponent, SupermarketListComponent, ReviewsDialogComponent, ProductDetailComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -30,7 +35,10 @@ import { SupermarketListComponent } from './supermarket-list/supermarket-list.co
     MatIconModule,
     MatChipsModule,
     MatProgressSpinnerModule,
-    MatTableModule
+    MatTableModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatDividerModule
   ]
 })
 export class CatalogModule {}

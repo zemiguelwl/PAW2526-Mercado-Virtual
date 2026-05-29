@@ -1,5 +1,12 @@
 <div class="orders-page">
-  <h2>As minhas encomendas</h2>
+  <!-- Cabeçalho -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">As minhas encomendas</h2>
+      <p class="page-subtitle">Histórico de compras e estados.</p>
+    </div>
+    <a mat-stroked-button routerLink="/profile" class="back-btn">Voltar à conta</a>
+  </div>
 
   <div *ngIf="loading" class="loading-state"><mat-spinner diameter="48"></mat-spinner></div>
 
@@ -9,23 +16,34 @@
     <button mat-raised-button color="primary" routerLink="/catalog">Ir às compras</button>
   </div>
 
-  <div class="orders-list" *ngIf="!loading && orders.length > 0">
-    <mat-card class="order-card" *ngFor="let o of orders" [routerLink]="['/orders', o._id]">
-      <mat-card-header>
-        <mat-card-title>
-          #{{ o._id.slice(-6).toUpperCase() }}
-          <mat-chip [color]="statusColor[o.status]" selected class="status-chip">
-            {{ statusLabel[o.status] }}
-          </mat-chip>
-        </mat-card-title>
-        <mat-card-subtitle>{{ o.supermarket?.name }} · {{ o.createdAt | date:'dd/MM/yyyy HH:mm' }}</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="order-summary">
-          <span>{{ o.items?.length }} artigo(s)</span>
-          <strong>{{ o.total | currency:'EUR':'symbol':'1.2-2' }}</strong>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  <mat-card class="orders-card" *ngIf="!loading && orders.length > 0">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Ref.</th>
+          <th>Data</th>
+          <th>Supermercado</th>
+          <th>Estado</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of orders">
+          <td class="ref">#{{ o._id.slice(-6).toUpperCase() }}</td>
+          <td>{{ o.createdAt | date:'dd/MM/yyyy, HH:mm:ss' }}</td>
+          <td>{{ o.supermarket?.name }}</td>
+          <td>
+            <span class="status-chip" [ngClass]="'status-' + o.status">
+              {{ statusLabel[o.status] || o.status }}
+            </span>
+          </td>
+          <td class="total">{{ o.total | number:'1.2-2' }} €</td>
+          <td>
+            <button mat-stroked-button [routerLink]="['/orders', o._id]">Detalhe</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
 </div>

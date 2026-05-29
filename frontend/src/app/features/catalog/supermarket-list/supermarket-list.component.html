@@ -17,14 +17,30 @@
           <mat-chip [color]="sm.isOpen ? 'primary' : 'warn'" selected>
             {{ sm.isOpen ? 'Aberto' : 'Fechado' }}
           </mat-chip>
-          <span class="rating" *ngIf="sm.rating?.count > 0">
-            ★ {{ sm.rating.average | number:'1.1-1' }} ({{ sm.rating.count }})
+          <span class="schedule-today">
+            <mat-icon class="clock-icon">schedule</mat-icon>
+            {{ todaySchedule(sm.schedule) }}
           </span>
         </div>
+
+        <div class="rating-row">
+          <span
+            class="rating"
+            *ngIf="sm.rating?.count > 0"
+            (click)="openReviews(sm)"
+            title="Ver avaliações"
+          >
+            <mat-icon class="star-icon">star</mat-icon>
+            {{ sm.rating.average | number:'1.1-1' }}
+            <span class="rating-count">({{ sm.rating.count }})</span>
+          </span>
+          <span class="no-rating" *ngIf="!sm.rating?.count">Sem avaliações</span>
+        </div>
+
         <div class="delivery-methods" *ngIf="sm.deliveryMethods?.length">
           <mat-chip *ngFor="let dm of sm.deliveryMethods" [disabled]="!dm.active">
             {{ dm.label }}
-            <span *ngIf="dm.cost > 0"> — {{ dm.cost | currency:'EUR':'symbol':'1.2-2' }}</span>
+            <span *ngIf="dm.cost > 0"> - {{ dm.cost | currency:'EUR':'symbol':'1.2-2' }}</span>
           </mat-chip>
         </div>
       </mat-card-content>

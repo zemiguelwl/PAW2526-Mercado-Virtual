@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { CatalogService } from '../../../core/services/catalog.service';
 import { CartService } from '../../../core/services/cart.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-compare',
@@ -19,8 +21,10 @@ export class CompareComponent implements OnInit {
   constructor(
     private catalogService: CatalogService,
     private cartService: CartService,
+    private authService: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
@@ -57,7 +61,15 @@ export class CompareComponent implements OnInit {
   }
 
   addToCart(product: any): void {
+    if (!this.authService.isLoggedIn()) {
+      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: '/catalog/compare' } });
+      return;
+    }
     const error = this.cartService.addItem(product);
-    if (error) alert(error);
+    if (error) {
+      this.snackBar.open(error, 'OK', { duration: 4000 });
+    } else {
+      this.snackBar.open('Produto adicionado ao carrinho!', '', { duration: 2000 });
+    }
   }
 }

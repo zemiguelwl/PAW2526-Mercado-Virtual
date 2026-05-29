@@ -8,13 +8,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialogModule } from '@angular/material/dialog';
 
 import { CartRoutingModule } from './cart-routing.module';
-import { CartComponent } from './cart/cart.component';
+import { CartComponent, ClearCartDialogComponent } from './cart/cart.component';
 import { CheckoutComponent } from './checkout/checkout.component';
 
 @NgModule({
-  declarations: [CartComponent, CheckoutComponent],
+  declarations: [CartComponent, ClearCartDialogComponent, CheckoutComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -25,7 +26,8 @@ import { CheckoutComponent } from './checkout/checkout.component';
     MatFormFieldModule,
     MatInputModule,
     MatRadioModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule
   ]
 })
 export class CartModule {}

@@ -37,4 +37,8 @@ export class CatalogService {
   compareProducts(name: string): Observable<any> {
     return this.http.get(`${this.API}/compare`, { params: new HttpParams().set('name', name) });
   }
+
+  getReviews(supermarketId: string): Observable<any> {
+    return this.http.get(`${this.API}/supermarkets/${supermarketId}/reviews`);
+  }
 }
