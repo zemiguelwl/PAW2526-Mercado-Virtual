@@ -1,0 +1,73 @@
+<div class="cart-page">
+  <h2>O meu carrinho</h2>
+
+  <div *ngIf="cart.items.length === 0" class="empty-cart">
+    <mat-icon>shopping_cart</mat-icon>
+    <p>O teu carrinho está vazio.</p>
+    <button mat-raised-button color="primary" routerLink="/catalog">Ver produtos</button>
+  </div>
+
+  <div *ngIf="cart.items.length > 0">
+    <p class="supermarket-label">
+      <mat-icon>store</mat-icon> {{ cart.supermarketName }}
+    </p>
+
+    <mat-card class="cart-card">
+      <div class="cart-item" *ngFor="let item of cart.items">
+        <img [src]="item.productImage" [alt]="item.productName" class="item-img"
+          (error)="$any($event.target).onerror=null; $any($event.target).src='/product-placeholder.svg'" />
+
+        <div class="item-info">
+          <p class="item-name">{{ item.productName }}</p>
+          <p class="item-price">
+            {{ item.productPrice | number:'1.2-2' }} €
+            <span class="price-unit" *ngIf="item.unit === 'kg'">/kg</span>
+            <span class="price-unit" *ngIf="item.unit === 'liter'">/L</span>
+          </p>
+        </div>
+
+        <!-- Controlo de quantidade: standard (por unidade) -->
+        <div class="item-qty" *ngIf="item.unit === 'unit'">
+          <button mat-icon-button (click)="updateQty(item.productId, item.quantity - 1)" [disabled]="item.quantity <= 1">
+            <mat-icon>remove</mat-icon>
+          </button>
+          <span class="qty-display">{{ item.quantity }}</span>
+          <button mat-icon-button (click)="updateQty(item.productId, item.quantity + 1)" [disabled]="item.quantity >= item.stock">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        <!-- Controlo de quantidade: ao kg ou litro (dropdown) -->
+        <div class="item-qty item-qty-select" *ngIf="item.unit !== 'unit'">
+          <mat-form-field appearance="outline" class="qty-select-field">
+            <mat-label>Qtd.</mat-label>
+            <mat-select [value]="item.quantity" (selectionChange)="updateQty(item.productId, $event.value)">
+              <mat-option *ngFor="let opt of optionsFor(item)" [value]="opt.value">
+                {{ opt.label }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <p class="item-total">{{ item.productPrice * item.quantity | number:'1.2-2' }} €</p>
+
+        <button mat-icon-button color="warn" (click)="remove(item.productId)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </mat-card>
+
+    <div class="cart-summary">
+      <div class="summary-line">
+        <span>Subtotal</span>
+        <strong>{{ subtotal | number:'1.2-2' }} €</strong>
+      </div>
+      <div class="summary-actions">
+        <button mat-button color="warn" (click)="clear()">Limpar carrinho</button>
+        <button mat-raised-button color="primary" (click)="checkout()">
+          Finalizar encomenda
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="app-shell">
+  <app-navbar></app-navbar>
+
+  <div class="app-right">
+    <!-- Top bar -->
+    <header class="top-bar">
+      <ng-container *ngIf="currentUser; else guestBar">
+        <div class="search-wrap">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            class="search-input"
+            placeholder="Pesquisar no catálogo..."
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+          />
+        </div>
+        <div class="top-actions">
+          <a routerLink="/cart" class="cart-btn">
+            <mat-icon>shopping_cart</mat-icon>
+            <span class="cart-count" *ngIf="cartCount > 0">{{ cartCount }}</span>
+          </a>
+          <div class="user-avatar">{{ currentUser.name.charAt(0).toUpperCase() }}</div>
+          <span class="user-name">{{ currentUser.name }}</span>
+          <button class="logout-btn" (click)="logout()">Sair</button>
+        </div>
+      </ng-container>
+
+      <ng-template #guestBar>
+        <div class="guest-actions">
+          <a routerLink="/auth/login" class="btn-guest-outline">
+            <mat-icon>login</mat-icon> Entrar
+          </a>
+          <a routerLink="/auth/register" class="btn-guest-filled">
+            <mat-icon>person_add</mat-icon> Registar
+          </a>
+        </div>
+      </ng-template>
+    </header>
+
+    <main class="app-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

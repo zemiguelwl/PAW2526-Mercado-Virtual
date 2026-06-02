@@ -1,0 +1,109 @@
+<div class="catalog-page">
+  <!-- Cabeçalho de página -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">Catálogo de produtos</h2>
+      <p class="page-subtitle">Pesquisa e comparação entre supermercados aprovados.</p>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <mat-card class="filters-card">
+    <div class="filters-row">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Pesquisar por nome</mat-label>
+        <input matInput [(ngModel)]="filters.q" (input)="onSearchInput()" />
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Categoria</mat-label>
+        <mat-select [(ngModel)]="filters.category" (ngModelChange)="onFilterChange()">
+          <mat-option value="">Todas as categorias</mat-option>
+          <mat-option *ngFor="let cat of categories" [value]="cat._id">{{ cat.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Ordenar por</mat-label>
+        <mat-select [(ngModel)]="filters.sort" (ngModelChange)="onFilterChange()">
+          <mat-option value="name_asc">Nome A-Z</mat-option>
+          <mat-option value="price_asc">Preço crescente</mat-option>
+          <mat-option value="price_desc">Preço decrescente</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Supermercado</mat-label>
+        <mat-select [(ngModel)]="filters.supermarket" (ngModelChange)="onFilterChange()">
+          <mat-option value="">Todos os supermercados</mat-option>
+          <mat-option *ngFor="let sm of supermarkets" [value]="sm._id">{{ sm.name }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="applyFilters()">Filtrar</button>
+        <button mat-stroked-button (click)="compare(filters.q || 'leite')">Comparar preços</button>
+      </div>
+    </div>
+  </mat-card>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Sem resultados -->
+  <div *ngIf="!loading && products.length === 0" class="empty-state">
+    <mat-icon>search_off</mat-icon>
+    <p>Nenhum produto encontrado.</p>
+  </div>
+
+  <!-- Grelha de produtos -->
+  <div class="products-grid" *ngIf="!loading && products.length > 0">
+    <mat-card class="product-card" *ngFor="let p of products">
+      <img mat-card-image [src]="p.image" [alt]="p.name" class="product-img"
+        (error)="$any($event.target).onerror=null; $any($event.target).src='/product-placeholder.svg'" />
+      <mat-card-header>
+        <mat-card-title>{{ p.name }}</mat-card-title>
+        <mat-card-subtitle>{{ p.category?.name }} · {{ p.supermarket?.name }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="price">
+          {{ p.price | number:'1.2-2' }} €
+          <span class="unit-label" *ngIf="p.unit === 'kg'">/kg</span>
+          <span class="unit-label" *ngIf="p.unit === 'liter'">/L</span>
+        </p>
+        <p>
+          <span class="stock-badge" [class.stock-ok]="p.stock > 5" [class.stock-low]="p.stock > 0 && p.stock <= 5" [class.stock-out]="p.stock === 0">
+            {{ p.stock === 0 ? 'Esgotado' : p.stock <= 5 ? 'Últimas unidades' : 'Disponível' }}
+          </span>
+        </p>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-stroked-button color="primary" (click)="addToCart(p)" [disabled]="p.stock === 0">
+          <mat-icon>{{ isLoggedIn ? 'add_shopping_cart' : 'login' }}</mat-icon>
+          <ng-container *ngIf="p.stock === 0">Esgotado</ng-container>
+          <ng-container *ngIf="p.stock > 0 && !isLoggedIn">Entrar para comprar</ng-container>
+          <ng-container *ngIf="p.stock > 0 && isLoggedIn && (p.unit === 'kg' || p.unit === 'liter')">Escolher quantidade</ng-container>
+          <ng-container *ngIf="p.stock > 0 && isLoggedIn && p.unit !== 'kg' && p.unit !== 'liter'">{{ addedProductId === p._id ? 'Adicionado!' : 'Adicionar' }}</ng-container>
+        </button>
+        <button mat-icon-button [routerLink]="['/catalog/products', p._id]" title="Ver detalhe">
+          <mat-icon>info_outline</mat-icon>
+        </button>
+        <button mat-icon-button (click)="compare(p.name)" title="Comparar preços">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- Paginação -->
+  <div class="pagination" *ngIf="pagination?.pages > 1">
+    <button mat-button *ngFor="let p of pages"
+      [class.active-page]="p === filters.page"
+      (click)="goToPage(p)">
+      {{ p }}
+    </button>
+  </div>
+</div>

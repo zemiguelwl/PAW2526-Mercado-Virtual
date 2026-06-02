@@ -1,0 +1,59 @@
+<div class="dialog-header">
+  <div>
+    <h2 mat-dialog-title>{{ data.supermarketName }}</h2>
+    <p class="header-rating">
+      <span class="star-row">
+        <mat-icon *ngFor="let filled of starsArray(data.ratingAverage)" class="star-icon" [class.filled]="filled">
+          {{ filled ? 'star' : 'star_border' }}
+        </mat-icon>
+      </span>
+      <span class="avg">{{ data.ratingAverage | number:'1.1-1' }}</span>
+      <span class="count">({{ data.ratingCount }} avaliação{{ data.ratingCount !== 1 ? 'ões' : '' }})</span>
+    </p>
+  </div>
+  <button mat-icon-button (click)="close()" class="close-btn">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<mat-dialog-content class="dialog-content">
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="36"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && reviews.length === 0" class="empty-state">
+    <mat-icon>rate_review</mat-icon>
+    <p>Ainda sem avaliações.</p>
+  </div>
+
+  <div class="review-list" *ngIf="!loading && reviews.length > 0">
+    <div class="review-item" *ngFor="let r of reviews">
+      <div class="review-top">
+        <span class="author">{{ r.author?.name || 'Anónimo' }}</span>
+        <span class="review-stars">
+          <mat-icon *ngFor="let filled of starsArray(r.rating)" class="star-icon-sm" [class.filled]="filled">
+            {{ filled ? 'star' : 'star_border' }}
+          </mat-icon>
+        </span>
+        <span class="review-date">{{ r.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <p class="review-comment" *ngIf="r.comment">{{ r.comment }}</p>
+
+      <div class="owner-reply" *ngIf="r.reply?.text">
+        <mat-icon class="reply-icon">reply</mat-icon>
+        <div class="reply-body">
+          <span class="reply-label">Resposta do supermercado</span>
+          <p class="reply-text">{{ r.reply.text }}</p>
+          <span class="reply-date">{{ r.reply.repliedAt | date:'dd/MM/yyyy' }}</span>
+        </div>
+      </div>
+
+      <mat-divider></mat-divider>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="close()">Fechar</button>
+</mat-dialog-actions>

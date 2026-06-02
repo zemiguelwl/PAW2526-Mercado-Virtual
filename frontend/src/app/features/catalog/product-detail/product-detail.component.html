@@ -1,0 +1,132 @@
+<div class="detail-page">
+  <div *ngIf="loading" class="loading-state">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <div *ngIf="!loading && product">
+    <div class="breadcrumb">
+      <button mat-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon> Catálogo
+      </button>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">{{ product.name }}</span>
+    </div>
+
+    <div class="product-layout">
+      <!-- Imagem -->
+      <div class="product-image-wrap">
+        <img
+          [src]="product.image"
+          [alt]="product.name"
+          class="product-image"
+          (error)="$any($event.target).onerror=null; $any($event.target).src='/product-placeholder.svg'"
+        />
+      </div>
+
+      <!-- Informação -->
+      <div class="product-info">
+        <p class="product-category">{{ product.category?.name }}</p>
+        <h1 class="product-name">{{ product.name }}</h1>
+        <p class="product-description" *ngIf="product.description">{{ product.description }}</p>
+
+        <!-- Preço base -->
+        <p class="product-price">
+          {{ product.price | currency:'EUR':'symbol':'1.2-2' }}
+          <span class="price-unit-label" *ngIf="unit === 'kg'">/ kg</span>
+          <span class="price-unit-label" *ngIf="unit === 'liter'">/ litro</span>
+        </p>
+
+        <div class="stock-row">
+          <span class="stock-badge"
+            [class.stock-ok]="product.stock > 5"
+            [class.stock-low]="product.stock > 0 && product.stock <= 5"
+            [class.stock-out]="product.stock === 0">
+            <ng-container *ngIf="unit === 'unit'">
+              {{ product.stock === 0 ? 'Esgotado' : product.stock <= 5 ? 'Últimas ' + product.stock + ' unidades' : 'Disponível' }}
+            </ng-container>
+            <ng-container *ngIf="unit === 'kg'">
+              {{ product.stock === 0 ? 'Esgotado' : 'Stock: ' + product.stock + ' kg' }}
+            </ng-container>
+            <ng-container *ngIf="unit === 'liter'">
+              {{ product.stock === 0 ? 'Esgotado' : 'Stock: ' + product.stock + ' L' }}
+            </ng-container>
+          </span>
+        </div>
+
+        <!-- Seletor de quantidade — produto standard (por unidade) -->
+        <div class="qty-section" *ngIf="unit === 'unit' && product.stock > 0">
+          <label class="qty-label">Quantidade</label>
+          <div class="qty-stepper">
+            <button mat-icon-button (click)="decrementQty()" [disabled]="selectedQty <= 1">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <input type="number" class="qty-input" [(ngModel)]="selectedQty" min="1" [max]="maxQty"
+              (change)="selectedQty = $any($event.target).value < 1 ? 1 : $any($event.target).value > maxQty ? maxQty : +$any($event.target).value" />
+            <button mat-icon-button (click)="incrementQty()" [disabled]="selectedQty >= maxQty">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Seletor de quantidade — produto ao kg -->
+        <div class="qty-section" *ngIf="unit === 'kg' && product.stock > 0">
+          <label class="qty-label">Quantidade</label>
+          <div class="qty-pills">
+            <button
+              *ngFor="let opt of kgOptions"
+              mat-stroked-button
+              class="qty-pill"
+              [class.qty-pill-active]="selectedQty === opt.value"
+              [disabled]="opt.value > product.stock"
+              (click)="setQty(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Seletor de quantidade — produto ao litro -->
+        <div class="qty-section" *ngIf="unit === 'liter' && product.stock > 0">
+          <label class="qty-label">Quantidade</label>
+          <div class="qty-pills">
+            <button
+              *ngFor="let opt of literOptions"
+              mat-stroked-button
+              class="qty-pill"
+              [class.qty-pill-active]="selectedQty === opt.value"
+              [disabled]="opt.value > product.stock"
+              (click)="setQty(opt.value)">
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Preço total calculado (quando quantidade != 1) -->
+        <p class="total-price-preview" *ngIf="product.stock > 0 && (unit !== 'unit' || selectedQty > 1)">
+          Total: <strong>{{ totalPrice | currency:'EUR':'symbol':'1.2-2' }}</strong>
+        </p>
+
+        <button mat-raised-button color="primary" class="add-btn"
+          (click)="addToCart()" [disabled]="product.stock === 0">
+          <mat-icon>{{ isLoggedIn ? 'add_shopping_cart' : 'login' }}</mat-icon>
+          {{ product.stock === 0 ? 'Esgotado' : addedToCart ? 'Adicionado!' : isLoggedIn ? 'Adicionar ao carrinho' : 'Entrar para comprar' }}
+        </button>
+
+        <!-- Supermercado -->
+        <mat-card class="sm-card" *ngIf="product.supermarket">
+          <mat-card-header>
+            <mat-card-title>{{ product.supermarket.name }}</mat-card-title>
+            <mat-card-subtitle>
+              <mat-icon class="inline-icon">location_on</mat-icon>
+              {{ product.supermarket.location }}
+            </mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            <span class="open-badge" [class.open]="product.supermarket.isOpen" [class.closed]="!product.supermarket.isOpen">
+              {{ product.supermarket.isOpen ? 'Aberto agora' : 'Fechado' }}
+            </span>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

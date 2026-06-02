@@ -1,0 +1,51 @@
+# ------------------------------------------------------------------
+# Mercadinho Virtual — .gitignore
+# ------------------------------------------------------------------
+
+# Variáveis de ambiente (credenciais, secrets)
+.env
+.env.local
+.env.*.local
+
+# Dependências Node
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Build Angular
+frontend/dist/
+frontend/.angular/
+
+# Uploads de utilizadores / imagens de produtos
+backend/public/uploads/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Ficheiros de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE / Editor
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Cobertura de testes
+coverage/
+frontend/coverage/
+
+# Cache Angular CLI
+.angular/cache/
+
+# Ficheiros temporários
+*.tmp
+*.temp

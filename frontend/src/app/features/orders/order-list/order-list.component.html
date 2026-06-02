@@ -1,0 +1,49 @@
+<div class="orders-page">
+  <!-- Cabeçalho -->
+  <div class="page-header">
+    <div>
+      <h2 class="page-title">As minhas encomendas</h2>
+      <p class="page-subtitle">Histórico de compras e estados.</p>
+    </div>
+    <a mat-stroked-button routerLink="/profile" class="back-btn">Voltar à conta</a>
+  </div>
+
+  <div *ngIf="loading" class="loading-state"><mat-spinner diameter="48"></mat-spinner></div>
+
+  <div *ngIf="!loading && orders.length === 0" class="empty-state">
+    <mat-icon>receipt_long</mat-icon>
+    <p>Ainda não fizeste nenhuma encomenda.</p>
+    <button mat-raised-button color="primary" routerLink="/catalog">Ir às compras</button>
+  </div>
+
+  <mat-card class="orders-card" *ngIf="!loading && orders.length > 0">
+    <table class="orders-table">
+      <thead>
+        <tr>
+          <th>Ref.</th>
+          <th>Data</th>
+          <th>Supermercado</th>
+          <th>Estado</th>
+          <th>Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let o of orders">
+          <td class="ref">#{{ o._id.slice(-6).toUpperCase() }}</td>
+          <td>{{ o.createdAt | date:'dd/MM/yyyy, HH:mm:ss' }}</td>
+          <td>{{ o.supermarket?.name }}</td>
+          <td>
+            <span class="status-chip" [ngClass]="'status-' + o.status">
+              {{ statusLabel[o.status] || o.status }}
+            </span>
+          </td>
+          <td class="total">{{ o.total | number:'1.2-2' }} €</td>
+          <td>
+            <button mat-stroked-button [routerLink]="['/orders', o._id]">Detalhe</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </mat-card>
+</div>

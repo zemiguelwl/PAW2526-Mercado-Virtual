@@ -1,0 +1,84 @@
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 16px 0;
+}
+
+.dialog-header h2 { margin: 0 0 4px; font-size: 1.2rem; }
+
+.header-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.star-row { display: flex; align-items: center; }
+
+.star-icon, .star-icon-sm {
+  color: #ccc;
+  transition: color 0.1s;
+}
+
+.star-icon { font-size: 20px; height: 20px; width: 20px; }
+.star-icon-sm { font-size: 16px; height: 16px; width: 16px; }
+.star-icon.filled, .star-icon-sm.filled { color: #f57c00; }
+
+.avg { font-weight: 700; color: #f57c00; }
+.count { color: #888; }
+
+.close-btn { margin-top: -4px; }
+
+.dialog-content { max-height: 60vh; min-width: 420px; padding: 0 16px 8px; }
+
+.loading-state, .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px;
+  gap: 12px;
+  color: #888;
+}
+
+.empty-state mat-icon { font-size: 48px; height: 48px; width: 48px; }
+
+.review-list { display: flex; flex-direction: column; gap: 4px; }
+
+.review-item { padding: 12px 0; }
+
+.review-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.author { font-weight: 600; font-size: 0.9rem; }
+.review-stars { display: flex; align-items: center; }
+.review-date { font-size: 0.78rem; color: #999; margin-left: auto; }
+
+.review-comment { margin: 0 0 8px; font-size: 0.88rem; color: #444; }
+
+.owner-reply {
+  display: flex;
+  gap: 8px;
+  background: #f5f5f5;
+  border-left: 3px solid #2d6a4f;
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px;
+  margin-top: 6px;
+}
+
+.reply-icon { color: #2d6a4f; font-size: 18px; height: 18px; width: 18px; margin-top: 2px; }
+
+.reply-body { display: flex; flex-direction: column; gap: 2px; }
+
+.reply-label { font-size: 0.75rem; font-weight: 700; color: #2d6a4f; text-transform: uppercase; letter-spacing: 0.5px; }
+.reply-text { margin: 2px 0; font-size: 0.85rem; color: #333; }
+.reply-date { font-size: 0.72rem; color: #999; }
+
+mat-divider { margin-top: 10px; }

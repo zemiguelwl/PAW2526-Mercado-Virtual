@@ -1,0 +1,46 @@
+<div class="sidebar-brand">
+  <div class="brand-icon">
+    <mat-icon>storefront</mat-icon>
+  </div>
+  <span class="brand-text">Mercadinho<br>Virtual</span>
+</div>
+
+<nav class="sidebar-nav">
+  <a routerLink="/catalog" routerLinkActive="nav-active" class="nav-item"
+     [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>grid_view</mat-icon>
+    <span>Catálogo</span>
+  </a>
+
+  <a routerLink="/catalog/supermarkets" routerLinkActive="nav-active" class="nav-item"
+     [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>store</mat-icon>
+    <span>Supermercados</span>
+  </a>
+
+  <a routerLink="/catalog/compare" routerLinkActive="nav-active" class="nav-item"
+     [routerLinkActiveOptions]="{ exact: true }">
+    <mat-icon>compare_arrows</mat-icon>
+    <span>Comparar Preços</span>
+  </a>
+
+  <ng-container *ngIf="currentUser">
+    <div class="nav-divider"></div>
+
+    <a routerLink="/cart" routerLinkActive="nav-active" class="nav-item">
+      <mat-icon>shopping_cart</mat-icon>
+      <span>Carrinho</span>
+      <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+    </a>
+
+    <a routerLink="/orders" routerLinkActive="nav-active" class="nav-item">
+      <mat-icon>receipt_long</mat-icon>
+      <span>Encomendas</span>
+    </a>
+
+    <a routerLink="/profile" routerLinkActive="nav-active" class="nav-item">
+      <mat-icon>person</mat-icon>
+      <span>Conta</span>
+    </a>
+  </ng-container>
+</nav>

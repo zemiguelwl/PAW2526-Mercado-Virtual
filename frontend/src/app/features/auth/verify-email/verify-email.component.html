@@ -1,0 +1,61 @@
+<div class="auth-container">
+  <mat-card class="auth-card">
+    <mat-card-header>
+      <mat-card-title>Verificar email</mat-card-title>
+
+      <!-- Vindo do registo: código foi enviado agora -->
+      <mat-card-subtitle *ngIf="!fromLogin">
+        Enviámos um código de 6 dígitos para o teu email. Introduz-o abaixo (válido 15 minutos).
+      </mat-card-subtitle>
+
+      <!-- Vindo do login: não foi enviado nenhum código automático -->
+      <mat-card-subtitle *ngIf="fromLogin">
+        O teu email ainda não está verificado. Clica em <strong>Enviar código</strong> para receber um novo código de verificação.
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+
+      <!-- Mensagem de sucesso final (verificação concluída) -->
+      <p *ngIf="verified" class="msg-box success-box">{{ successMessage }}</p>
+
+      <!-- Formulário só é escondido após verificação bem-sucedida -->
+      <ng-container *ngIf="!verified">
+        <mat-error *ngIf="errorMessage" class="msg-box error-box">{{ errorMessage }}</mat-error>
+
+        <!-- Mensagem informativa após reenvio -->
+        <p *ngIf="resendMessage" class="msg-box info-box">
+          <mat-icon class="inline-icon">mark_email_read</mat-icon>
+          {{ resendMessage }}
+        </p>
+
+        <form (ngSubmit)="onSubmit()">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Código de verificação (6 dígitos)</mat-label>
+            <input matInput [(ngModel)]="code" name="code" maxlength="6"
+              inputmode="numeric" pattern="[0-9]*" autocomplete="one-time-code" required />
+          </mat-form-field>
+
+          <button mat-raised-button color="primary" type="submit" class="full-width" [disabled]="loading">
+            {{ loading ? 'A verificar...' : 'Verificar' }}
+          </button>
+        </form>
+      </ng-container>
+
+    </mat-card-content>
+
+    <mat-card-actions *ngIf="!verified">
+      <!-- Vindo do registo: "Reenviar" (código já foi enviado uma vez) -->
+      <button *ngIf="!fromLogin" mat-button (click)="resend()" [disabled]="resending">
+        <mat-icon>refresh</mat-icon>
+        {{ resending ? 'A reenviar...' : 'Reenviar código' }}
+      </button>
+
+      <!-- Vindo do login: "Enviar código" (nenhum código foi enviado nesta sessão) -->
+      <button *ngIf="fromLogin" mat-raised-button color="accent" (click)="resend()" [disabled]="resending">
+        <mat-icon>send</mat-icon>
+        {{ resending ? 'A enviar...' : 'Enviar código' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
